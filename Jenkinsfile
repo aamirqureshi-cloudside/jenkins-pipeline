@@ -26,6 +26,9 @@ pipeline {
         stage('Image remove'){
             steps{
                 sh 'sudo docker rmi gcr.io/cloudside-academy/java-app:$tag'
+                stage('Deploy') {
+            steps {
+                sh 'mvn deploy'
             }
         }
         stage("Set up Kustomize"){
