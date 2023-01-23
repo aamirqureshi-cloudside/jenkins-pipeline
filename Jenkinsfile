@@ -13,19 +13,19 @@ pipeline {
             steps {
                 git branch: 'main', url: 'https://github.com/tsa-cloudside/jenkins-pipeline.git'
                 sh 'sudo mvn clean package'
-                sh 'sudo docker build -t gcr.io/cloudside-academy/nginx-svc:$tag .'
+                sh 'sudo docker build -t gcr.io/cloudside-academy/java-app:$tag .'
             }
         }
         stage('Push Image') {
             steps {
                sh 'gcloud auth configure-docker gcr.io -q'
                sh 'sudo docker images'
-               sh 'sudo docker push gcr.io/cloudside-academy/nginx-svc:$tag'
+               sh 'sudo docker push gcr.io/cloudside-academy/java-app:$tag'
             }
         }
         stage('Image remove'){
             steps{
-                sh 'sudo docker rmi gcr.io/cloudside-academy/nginx-svc:$tag'
+                sh 'sudo docker rmi gcr.io/cloudside-academy/java-app:$tag'
             }
         }
         stage("Set up Kustomize"){
@@ -37,7 +37,7 @@ pipeline {
         stage("Deploy Image to GKE cluster"){
             steps{
                 sh 'kubectl get nodes'
-                sh './kustomize edit set image gcr.io/PROJECT_ID/IMAGE:TAG=gcr.io/cloudside-academy/nginx-svc:$tag'
+                sh './kustomize edit set image gcr.io/PROJECT_ID/IMAGE:TAG=gcr.io/cloudside-academy/java-app:$tag'
                 sh './kustomize build . | kubectl apply -f -'
                 sleep 60
                 sh 'kubectl get services -o wide'
@@ -55,7 +55,7 @@ pipeline {
         stage("Deploy Application to Production"){
             steps{
                 sh 'kubectl get nodes'
-                sh './kustomize edit set image gcr.io/PROJECT_ID/IMAGE:TAG=gcr.io/cloudside-academy/nginx-svc:$tag'
+                sh './kustomize edit set image gcr.io/PROJECT_ID/IMAGE:TAG=gcr.io/cloudside-academy/java-app:$tag'
                 sh './kustomize build . | kubectl apply -f -'
                 sleep 60
                 sh 'kubectl get services -o wide'
