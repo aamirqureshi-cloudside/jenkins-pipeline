@@ -21,14 +21,15 @@ pipeline {
                sh 'gcloud auth configure-docker gcr.io -q'
                sh 'sudo docker images'
                sh 'sudo docker push gcr.io/cloudside-academy/java-app:$tag'
+                stage('Deploy') {
+            steps {
+                sh 'mvn deploy'
             }
         }
         stage('Image remove'){
             steps{
                 sh 'sudo docker rmi gcr.io/cloudside-academy/java-app:$tag'
-                stage('Deploy') {
-            steps {
-                sh 'mvn deploy'
+                
             }
         }
         stage("Set up Kustomize"){
